@@ -1,0 +1,172 @@
+// "use client";
+
+// import ScoreTableHeader from "./gradesHeader";
+// import { useParams } from "next/navigation";
+// import {
+//   useGetGradingDetailQuery,
+//   useGetGradingQuery,
+// } from "@/store/api/apiSlice/get/gradesApiSlice";
+// import { useGetEnrolledQuery } from "@/store/api/apiSlice/get/teachingLoadApiSlice";
+
+// export default function ScoreTable() {
+//   const { teachingLoadDetailId, termId, categoryId, categoryName } =
+//     useParams();
+
+//   // REDUX API GET
+//   const { data: gradingData } = useGetGradingQuery(
+//     {
+//       teachingLoadDetailId: Number(teachingLoadDetailId),
+//       termId: Number(termId),
+//       categoryId: Number(categoryId),
+//     },
+//     { refetchOnMountOrArgChange: true }
+//   );
+
+//   const { data: enrolledStudents } = useGetEnrolledQuery(
+//     Number(teachingLoadDetailId),
+//     { refetchOnMountOrArgChange: true }
+//   );
+
+//   const { data: gradingDetail } = useGetGradingDetailQuery(
+//     {
+//       teachingLoadDetailId: Number(teachingLoadDetailId),
+//       termId: Number(termId),
+//       categoryId: Number(categoryId),
+//     },
+//     { refetchOnMountOrArgChange: true }
+//   );
+
+//   // Calculate total number of items
+//   const totalItems =
+//     gradingData?.reduce((sum, item) => sum + item.numberOfItems, 0) || 0;
+
+//   // Function to get student's score for a specific activity
+//   const getStudentScore = (studentEnrollmentId: number, activityId: number) => {
+//     if (!gradingDetail?.grades) return null;
+
+//     // Find scores for this student across all grades/activities
+//     for (const grade of gradingDetail.grades) {
+//       // Look for a score entry with matching enrollmentId
+//       const scoreEntry = grade.score.find(
+//         (score) => score.enrollmentId === studentEnrollmentId
+//       );
+
+//       // If activity IDs match and we found a score, return it
+//       if (scoreEntry) {
+//         return scoreEntry.score;
+//       }
+//     }
+
+//     return null; // No score found for this student and activity
+//   };
+
+//   // Calculate total score for a student
+//   const calculateStudentTotal = (studentEnrollmentId: number) => {
+//     if (!gradingDetail?.grades) return 0;
+
+//     let total = 0;
+
+//     // Sum all scores for this student across all grades
+//     for (const grade of gradingDetail.grades) {
+//       const scoreEntry = grade.score.find(
+//         (score) => score.enrollmentId === studentEnrollmentId
+//       );
+
+//       if (scoreEntry) {
+//         total += scoreEntry.score;
+//       }
+//     }
+
+//     return total;
+//   };
+
+//   return (
+//     <div>
+//       <ScoreTableHeader />
+//       <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+//         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+//           <thead className="bg-gray-50 dark:bg-gray-700">
+//             <tr>
+//               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">
+//                 Student ID
+//               </th>
+//               <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">
+//                 Name of Students
+//               </th>
+
+//               {/* Dynamically render activities */}
+//               {gradingData && gradingData.length > 0 ? (
+//                 gradingData.map((activity, index) => (
+//                   <th
+//                     key={activity.id}
+//                     className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
+//                   >
+//                     {categoryName?.toString().charAt(0)}
+//                     {index + 1} = {activity.numberOfItems}
+//                   </th>
+//                 ))
+//               ) : (
+//                 <th
+//                   colSpan={3}
+//                   className="px-4 py-3 text-center text-xs font-medium uppercase italic tracking-wider text-gray-400 dark:text-gray-400"
+//                 >
+//                   No activities created yet
+//                 </th>
+//               )}
+//               <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">
+//                 Total = {totalItems}
+//               </th>
+//             </tr>
+//           </thead>
+//           <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
+//             {enrolledStudents?.map((student) => (
+//               <tr
+//                 key={student.enrollmentId}
+//                 className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
+//               >
+//                 <td className="whitespace-nowrap px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
+//                   {student.studentId}
+//                 </td>
+//                 <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-700 dark:text-gray-300">
+//                   {student.name}
+//                 </td>
+
+//                 {/* Dynamically render student scores for each activity */}
+//                 {gradingData?.map((activity) => {
+//                   const score = getStudentScore(
+//                     student.enrollmentId,
+//                     activity.id
+//                   );
+
+//                   return (
+//                     <td
+//                       key={`${student.enrollmentId}-${activity.id}`}
+//                       className="whitespace-nowrap px-4 py-4 text-center text-sm"
+//                     >
+//                       {score !== null ? (
+//                         <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+//                           {score}
+//                         </span>
+//                       ) : (
+//                         <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-600 dark:bg-red-600 dark:text-white">
+//                           0
+//                         </span>
+//                       )}
+//                     </td>
+//                   );
+//                 })}
+
+//                 {/* Total score */}
+//                 <td className="whitespace-nowrap px-4 py-4 text-center text-sm">
+//                   <span className="inline-flex items-center rounded-full bg-purple-100 px-3 py-1 text-sm font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+//                     {calculateStudentTotal(student.enrollmentId)}
+//                   </span>
+//                 </td>
+//               </tr>
+//             ))}
+//           </tbody>
+//         </table>
+//       </div>
+//     </div>
+//   );
+// }
