@@ -18,7 +18,7 @@ const roleBasedRoutes: Record<string, string[]> = {
 };
 
 const protectedRoutes = ["/teachingLoads/**", "/subjects/**", "/admin/**"];
-const publicRoutes = ["/login", "/register", "/forgot-password", "/reset-password"];
+const publicRoutes = ["/login", "unauthorized", "/register", "/forgot-password", "/reset-password"];
 const excludedRoutes = ["/_next/static", "/_next/image", "/favicon.ico", "/api/auth", "/assets"];
 
 export function middleware(request: NextRequest) {

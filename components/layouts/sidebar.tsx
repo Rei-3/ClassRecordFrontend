@@ -87,7 +87,18 @@ const Sidebar = () => {
       >
         <div className="h-full bg-white dark:bg-black">
           <div className="flex items-center justify-between px-4 py-3">
-            <Link href="/" className="main-logo flex shrink-0 items-center">
+            <Link
+              href={
+                role === "admin"
+                  ? "/admin"
+                  
+                : role === "teacher"
+                  ? "/teaching-loads"
+                : "/unathorized"
+              }
+              className="main-logo flex shrink-0 items-center"
+            >
+
               <img
                 className="ml-[5px] w-8 flex-none"
                 src="/assets/images/logo.svg"
@@ -230,13 +241,13 @@ const Sidebar = () => {
                             <Link href="/admin/users">{"users"}</Link>
                           </li>
                           <li>
-                            <Link href="/">{"roles"}</Link>
+                            <Link href="/admin/roles">{"roles"}</Link>
                           </li>
                           <li>
-                            <Link href="/">{"courses"}</Link>
+                            <Link href="/admin/courses">{"courses"}</Link>
                           </li>
                           <li>
-                            <Link href="/">{"subjects"}</Link>
+                            <Link href="/admin/subjects">{"subjects"}</Link>
                           </li>
                         </ul>
                       </AnimateHeight>
