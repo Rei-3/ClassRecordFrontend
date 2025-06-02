@@ -91,14 +91,12 @@ const Sidebar = () => {
               href={
                 role === "admin"
                   ? "/admin"
-                  
-                : role === "teacher"
+                  : role === "teacher"
                   ? "/teaching-loads"
-                : "/unathorized"
+                  : "/unathorized"
               }
               className="main-logo flex shrink-0 items-center"
             >
-
               <img
                 className="ml-[5px] w-8 flex-none"
                 src="/assets/images/logo.svg"
@@ -142,7 +140,7 @@ const Sidebar = () => {
                                             </div>
                                         </Link>
                                     </li> */}
-
+{role === "teacher" && (
                   <li className="menu nav-item">
                     <button
                       type="button"
@@ -168,7 +166,7 @@ const Sidebar = () => {
                         <IconCaretDown />
                       </div>
                     </button>
-                    {role === "teacher" && (
+                    
                       <AnimateHeight
                         duration={300}
                         height={currentMenu === "Teaching Loads" ? "auto" : 0}
@@ -186,25 +184,11 @@ const Sidebar = () => {
                           </li>
                         </ul>
                       </AnimateHeight>
-                    )}
+                   
 
-                    {role === "admin" && (
-                      <AnimateHeight
-                        duration={300}
-                        height={currentMenu === "Teaching Loads" ? "auto" : 0}
-                      >
-                        <ul className="sub-menu text-gray-500">
-                          <li>
-                            <Link href="/admin/all-teaching-loads/">
-                              {"View All Teaching Loads"}
-                            </Link>
-                          </li>
-                        </ul>
-                      </AnimateHeight>
-                    )}
                   </li>
+                   )}
 
-                  
                   {role === "admin" && (
                     <li className="menu nav-item">
                       <button
@@ -237,17 +221,29 @@ const Sidebar = () => {
                         height={currentMenu === "dashboard" ? "auto" : 0}
                       >
                         <ul className="sub-menu text-gray-500">
-                          <li>
-                            <Link href="/admin/users">{"users"}</Link>
+                        <li>
+                            <Link href="/admin">
+                              {"Home Dashboard"}
+                            </Link>
                           </li>
                           <li>
+                            <Link href="/admin/all-teaching-loads/">
+                              {"View all teaching loads"}
+                            </Link>
+                          </li>
+                        </ul>
+                        <ul className="sub-menu text-gray-500">
+                          <li>
+                            <Link href="/admin/users">{"View all users"}</Link>
+                          </li>
+                          {/* <li>
                             <Link href="/admin/roles">{"roles"}</Link>
+                          </li> */}
+                          <li>
+                            <Link href="/admin/courses">{"View all courses"}</Link>
                           </li>
                           <li>
-                            <Link href="/admin/courses">{"courses"}</Link>
-                          </li>
-                          <li>
-                            <Link href="/admin/subjects">{"subjects"}</Link>
+                            <Link href="/admin/subjects">{"View all subjects"}</Link>
                           </li>
                         </ul>
                       </AnimateHeight>

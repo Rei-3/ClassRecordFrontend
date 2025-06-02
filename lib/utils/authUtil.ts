@@ -25,7 +25,7 @@ export const getRole = (token: string): string | null => {
     const decoded = jwtDecode<DecodedToken>(token);
     return decoded.role || null;
   } catch (error) {
-    console.error('Error decoding token:', error);
+    
     return null;
   }
 }
@@ -68,16 +68,16 @@ export const decryptData = (ciphertext: string): string | null => {
 
     return decrypted.toString(CryptoJS.enc.Utf8);
   } catch (error) {
-    console.error('Decryption failed:', error);
+    
     return null;
   }
 };
 
 // 🍪 Set cookie
 export const setAuthToken = (token: string): void => {
-  console.log("Setting raw token:", token);
+ 
   const encryptedToken = encryptData(token);
-  console.log("Encrypted token to store:", encryptedToken);
+ 
   Cookies.set(COOKIE_NAME, encryptedToken, COOKIE_OPTIONS);
 };
 
@@ -103,9 +103,9 @@ export const getRefreshToken = (): string | null => {
 
 export const isTokenExpired = (token: string): boolean => {
   try {
-    console.log("Token before decoding:", token);
+   
     if (!token || token.split('.').length !== 3) {
-      console.warn("Token is not a valid JWT.");
+   
       return true;
     }
 
@@ -114,7 +114,7 @@ export const isTokenExpired = (token: string): boolean => {
     const bufferTime = 10;
     return decoded.exp < currentTime + bufferTime;
   } catch (err) {
-    console.error('Error decoding token:', err);
+  
     return true;
   }
 }

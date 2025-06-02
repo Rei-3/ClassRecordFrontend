@@ -31,6 +31,7 @@ export default function SubjectTable() {
   }>({ key: 'teachingLoadIdDisplay', direction: 'desc' });
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedSemId, setSelectedSemId] = useState<number | 'all'>('all');
+  const [selectedAcademicYear, setSelectedAcademicYear] = useState<string | 'all'>('all');
   const [selectedTeachingLoadId, setSelectedTeachingLoadId] = useState<number | 'all'>('all');
   const itemsPerPage = 10;
 
@@ -76,7 +77,7 @@ export default function SubjectTable() {
   // Reset page to 1 when filters or search term change
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedSemId, selectedTeachingLoadId, searchTerm]);
+  }, [selectedSemId, selectedAcademicYear, selectedTeachingLoadId, searchTerm]);
 
   // Get unique semesters and teaching load IDs for filters
   const uniqueSemesters = useMemo(() => {
@@ -94,8 +95,14 @@ export default function SubjectTable() {
   const uniqueTeachingLoadIdsForFilter = useMemo(() => {
     return Object.entries(staticTeachingLoadMapping)
       .map(([id, count]) => ({ id: Number(id), count }))
-      .sort((a, b) => a.count - b.count);
+      .sort((a, b) => b.count - a.count);
   }, [staticTeachingLoadMapping]);
+
+  const uniqueAcademicYears = useMemo(() => {
+    const years = new Set<string>();
+    allSubjects.forEach(subject => years.add(subject.academicYear));
+    return Array.from(years).sort((a, b) => b.localeCompare(a));
+  }, [allSubjects]);
 
   // Apply filters and create the base filtered list
   const filteredSubjects = useMemo(() => {
@@ -104,6 +111,11 @@ export default function SubjectTable() {
     // Apply semester filter
     if (selectedSemId !== 'all') {
       filtered = filtered.filter(subject => subject.semId === selectedSemId);
+    }
+
+    // Apply academic year filter
+    if (selectedAcademicYear !== 'all') {
+      filtered = filtered.filter(subject => subject.academicYear === selectedAcademicYear);
     }
 
     // Apply teaching load filter
@@ -122,7 +134,7 @@ export default function SubjectTable() {
       );
     }
     return filtered;
-  }, [allSubjects, searchTerm, selectedSemId, selectedTeachingLoadId]);
+  }, [allSubjects, searchTerm, selectedSemId, selectedAcademicYear, selectedTeachingLoadId]);
 
   // Dynamic Mapping for Table Display
   const dynamicTeachingLoadMapping = useMemo(() => {
@@ -217,7 +229,25 @@ export default function SubjectTable() {
   return (
     <div className="p-4 pt-0 max-w-full mx-auto">
       {/* Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg shadow">
+      
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg shadow">
+        
+      <div>
+          <label htmlFor="academic-year-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Academic Year</label>
+          <select
+            id="academic-year-filter"
+            className="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            value={selectedAcademicYear}
+            onChange={(e) => setSelectedAcademicYear(e.target.value)}
+          >
+            <option value="all">All Academic Years</option>
+            {uniqueAcademicYears.map(year => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </select>
+        </div>
+
+
         <div>
           <label htmlFor="semester-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Semester</label>
           <select
@@ -238,6 +268,7 @@ export default function SubjectTable() {
           </select>
         </div>
 
+       
         <div>
           <label htmlFor="load-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Teaching Load</label>
           <select
@@ -297,8 +328,17 @@ export default function SubjectTable() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
             {currentItems.length > 0 ? (
-              currentItems.map((subject) => (
-                <tr key={`${subject.id}-${subject.teachingLoadDetailId}-${subject.teachingLoadId}`} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150">
+              currentItems.map((subject, index) => (
+                <tr 
+                key={`${subject.id}-${subject.teachingLoadDetailId}-${subject.teachingLoadId}`} 
+                className={`
+                  ${index % 2 === 0 ? 
+                    'bg-slate-200 dark:bg-gray-900' : 
+                    'bg-gray-50 dark:bg-gray-800'
+                  }
+                  hover:bg-gray-100 dark:hover:bg-gray-700 
+                  transition-colors duration-150
+                `}>
 
                   {/* Subject Code */}
                   <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
@@ -359,7 +399,7 @@ export default function SubjectTable() {
             ) : (
               <tr>
                 <td colSpan={8} className="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
-                  {searchTerm || selectedSemId !== 'all' || selectedTeachingLoadId !== 'all'
+                  {searchTerm || selectedSemId !== 'all' || selectedTeachingLoadId !== 'all' || selectedAcademicYear !== 'all'
                     ? 'No subjects found matching your criteria.'
                     : 'No subjects available.'
                   }

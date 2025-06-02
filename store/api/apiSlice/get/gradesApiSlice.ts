@@ -1,12 +1,14 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReauth } from "../conf/baseQuery";
-import { Grading, GradingComposition, GradingDetail, StudentFinal, StudentSemRecord } from "../../types/classRecord";
+import { BaseGrade, Grading, GradingComposition, GradingDetail, StudentFinal, StudentSemRecord } from "../../types/classRecord";
 import { Category } from "../../types/choices";
 
 export const getGradesApi = createApi ( {
     reducerPath: "getGradesApi",
     baseQuery: baseQueryWithReauth,
-    tagTypes: ["StudentSemRecord", "StudentFinal", "GradingComposition", "Category", "Grading", "GradingDetail"],
+    tagTypes: [
+        "StudentSemRecord", "StudentFinal", "GradingComposition", 
+        "Category", "Grading", "GradingDetail", "BaseGrade"],
     endpoints: (builder) => ({
 
         getSemGrades: builder.query<StudentSemRecord[], { teachingLoadDetailId: number; termId: number }>({
@@ -69,7 +71,18 @@ export const getGradesApi = createApi ( {
                 { type: "GradingDetail", id: teachingLoadDetailId },
               ],
         }), 
-            
+        getBaseGrade: builder.query<
+        BaseGrade,
+        {tld : number}
+        > ({
+            query: ({tld}) => ({
+                url: `${process.env.NEXT_PUBLIC_GET_BASE_GRADE}/${tld}`,
+                method: "GET",
+            }),
+            providesTags: (result, error, { tld }) => [
+                { type: "BaseGrade", id: tld },
+              ],
+        })
     }),
 })
 
@@ -80,4 +93,5 @@ export const {
     useGetGradeCategoryQuery,
     useGetGradingQuery,
     useGetGradingDetailQuery,
+    useGetBaseGradeQuery
 } = getGradesApi;

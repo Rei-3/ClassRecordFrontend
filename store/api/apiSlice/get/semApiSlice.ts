@@ -5,7 +5,7 @@ import { Sem, Terms } from "../../types/choices";
 export const getSemApi = createApi({
   reducerPath: "SubjectApi",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["Sem", "Term"],
+  tagTypes: ["Sem", "Term", "Courses"],
   endpoints: (builder) => ({
     getSem: builder.query<Sem[], void>({
       query: () => ({
@@ -21,7 +21,16 @@ export const getSemApi = createApi({
       }),
       providesTags: ["Term"],
     }),
+    getCourses: builder.query<any, void>({
+      query: () => ({
+        url: `${process.env.NEXT_PUBLIC_COURSES_WITH_DEP}`,
+        method: "GET",
+      }),
+      providesTags: ["Courses"], 
+    }),
   }),
 });
 
-export const { useGetSemQuery, useGetTermQuery } = getSemApi;
+export const { useGetSemQuery, useGetTermQuery,
+  useGetCoursesQuery
+ } = getSemApi;

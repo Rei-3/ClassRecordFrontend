@@ -8,9 +8,10 @@ interface ErrorModalProps {
   onClose: () => void;
   message?: string;
   code?: string;
+  children?: React.ReactNode;
 }
 
-const ErrorModal: React.FC<ErrorModalProps> = ({ isOpen, onClose, message, code }) => {
+const ErrorModal: React.FC<ErrorModalProps> = ({ isOpen, onClose, message, code, children }) => {
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" open={isOpen} onClose={onClose}>
@@ -41,6 +42,7 @@ const ErrorModal: React.FC<ErrorModalProps> = ({ isOpen, onClose, message, code 
                 <p className="whitespace-pre-line text-base">
                   {message || "An unexpected error occurred. Please try again."}
                 </p>
+                {children}
                 <div className="flex justify-end items-center mt-8">
                   <button
                     onClick={onClose}

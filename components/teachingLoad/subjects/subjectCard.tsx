@@ -11,13 +11,12 @@ interface SubjectCardProps {
   addOns: {
     academicYear: string;
     semName: any;
-  }
+  };
   subject: {
     id: number;
     subjectName: string;
     subjectDesc: string;
     units: number;
-  
   };
   detail: {
     id: number;
@@ -31,72 +30,50 @@ export default function SubjectCard({ subject, detail, addOns }: SubjectCardProp
   const { data: enrolledData } = useGetEnrolledQuery(detail.id);
 
   return (
-    <Card className="hover:shadow transition-shadow">
-      <CardContent className="p-4 space-y-4">
+    <Card className="hover:shadow-md transition-shadow border border-blue-100 bg-blue-50 dark:bg-gray-900 dark:border-gray-800">
+      <CardContent className="p-5 space-y-4">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="font-semibold">{subject.subjectName}</h3>
-            <p className="text-sm text-gray-500">{subject.subjectDesc}</p>
+            <h3 className="font-semibold text-gray-800 dark:text-white">{subject.subjectName}</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{subject.subjectDesc}</p>
           </div>
-          <span className="px-2 py-1 bg-primary text-white rounded-md text-s flex">
-            Section: <p className="font-bold ml-1">{detail.section}</p>
+          <span className="px-2 py-1 bg-blue-600 text-white rounded-md text-xs">
+            Section: <span className="font-bold ml-1">{detail.section}</span>
           </span>
         </div>
-        <div className="m-2">
-          <span className="px-2 py-1 bg-green-300 text-black rounded-md text-s">
+
+        <div>
+          <span className="inline-block px-2 py-1 bg-green-300 text-black rounded-md text-xs">
             Enrolled students: {enrolledData?.length || 0}
           </span>
         </div>
+
         <div className="flex flex-col items-center space-y-2">
           <QRCode value={detail.key} size={150} />
-          <p className="text-xs text-gray-500">Scan to enroll</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400">Scan to enroll</p>
         </div>
+
         <div className="flex justify-center gap-2 pt-2">
-          <button className="px-3 py-1 border rounded text-sm hover:bg-gray-50">
+          <button className="px-3 py-1 border border-gray-300 dark:border-gray-700 rounded text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
             Copy Code
           </button>
+
           <Link
-           href={`/subjects/${detail.id}/${
-            toSlug(subject.subjectName || '')
-          }/${
-            toSlug(String(addOns.semName) || '')
-          }/${
-            toSlug(addOns.academicYear || '')
-          }/${
-            toSlug(detail.section || '')
-          }/${
-            slugifySchedule(detail.schedule || '')
-          }`}
-          title={subject.subjectName} 
-            className="px-3 py-1 border rounded text-sm hover:bg-gray-50"
+            href={`/subjects/${detail.id}/${toSlug(subject.subjectName || '')}/${toSlug(String(addOns.semName) || '')}/${toSlug(addOns.academicYear || '')}/${toSlug(detail.section || '')}/${slugifySchedule(detail.schedule || '')}`}
+            title={subject.subjectName}
+            className="px-3 py-1 border border-gray-300 dark:border-gray-700 rounded text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
           >
             View Detail
           </Link>
-
-          {/* href={`/subjects/${subject.teachingLoadDetailId}/${
-                      toSlug(subject.subjectName || '')
-                    }/${
-                      toSlug(semData?.find(sem => sem.id === subject.semId)?.semName || '')
-                    }/${
-                      toSlug(subject.academicYear || '')
-                    }/${
-                      toSlug(subject.section || '')
-                    }/${
-                      slugifySchedule(subject.schedule || '')
-                    }`}
-                    title={subject.subjectName} */}
-
         </div>
-        <div className="ml-20">
-        <DefaultModal
-        title="Enlarge QR Code"
-        >
-          <div className="flex flex-col items-center space">
-            <QRCode value={detail.key} size={350} />
-          </div>
-        </DefaultModal>
+
+        <div className="flex justify-center pt-2">
+          <DefaultModal title="Enlarge QR Code">
+            <div className="flex flex-col items-center space-y-4">
+              <QRCode value={detail.key} size={350} />
+            </div>
+          </DefaultModal>
         </div>
-        
       </CardContent>
     </Card>
   );

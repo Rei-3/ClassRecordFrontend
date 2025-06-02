@@ -1,3 +1,5 @@
+import TeachingLoadsTable from "@/components/admin/teachingLoadTable";
+
 export default function TeachingLoadsPage() {
     return (
         <div className="space-y-4">
@@ -5,6 +7,7 @@ export default function TeachingLoadsPage() {
             <h1 className="text-2xl font-bold">Teaching Loads Page</h1>
             <p>This is the teaching loads page.</p>
         </div>
+        <TeachingLoadsTable/>
         </div>
     );
     }

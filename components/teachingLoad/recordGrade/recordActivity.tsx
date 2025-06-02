@@ -24,6 +24,7 @@ export default function ScoreTable() {
   const [selectedGradingDetailId, setSelectedGradingDetailId] = useState<number | null>(null);
 
   const { teachingLoadDetailId, termId, categoryId, categoryName } = useParams();
+
   const searchParams = useSearchParams();
   
   // Get search values from both Redux and URL
@@ -61,15 +62,17 @@ export default function ScoreTable() {
 
   const localScores = useSelector((state: IRootState) => state.score.scores);
 
-  // Filter students based on effective search term
-  const filteredStudents = enrolledStudents?.filter(student => {
-    if (!effectiveSearch) return true;
-    
-    return (
-      student.name.toLowerCase().includes(effectiveSearch.toLowerCase()) ||
-      student.studentId.toString().includes(effectiveSearch)
-    );
-  }) || [];
+  // Filter and sort students based on effective search term
+  const filteredStudents = (enrolledStudents || [])
+    .filter(student => {
+      if (!effectiveSearch) return true;
+      
+      return (
+        student.name.toLowerCase().includes(effectiveSearch.toLowerCase()) ||
+        student.studentId.toString().includes(effectiveSearch)
+      );
+    })
+    .sort((a, b) => a.name.localeCompare(b.name)); // Sort by name alphabetically
 
   const handleRecordGrades = async () => {
     if (localScores.length === 0) return;
@@ -168,6 +171,14 @@ export default function ScoreTable() {
       part
     );
   };
+  
+  // Format date function
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+   
+      return dateString.slice(0, 10); // Fallback to simple slice if parsing fails
+    
+  };
 
   return (
     <div>
@@ -189,8 +200,17 @@ export default function ScoreTable() {
                     key={activity.id}
                     className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
                   >
-                    {categoryName?.toString().charAt(0)}
-                    {index + 1} = {activity.numberOfItems}
+                    <div className="flex flex-col">
+                      <span>
+                        {categoryName?.toString().charAt(0)}
+                        {index + 1} = {activity.numberOfItems}
+                      </span>
+                      {activity.date && (
+                        <span className="text-xs font-normal mt-1">
+                          {formatDate(activity.date)}
+                        </span>
+                      )}
+                    </div>
                   </th>
                 ))
               ) : (
@@ -224,11 +244,16 @@ export default function ScoreTable() {
                 </td>
               </tr>
             ) : (
-              filteredStudents.map((student) => (
+              filteredStudents.map((student, index) => (
                 <tr
                   key={student.enrollmentId}
-                  className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
-                >
+                  className={`
+                    ${index % 2 === 0 ? 
+                      'bg-slate-200 dark:bg-gray-900' : 
+                      'bg-gray-50 dark:bg-gray-800'
+                    }
+                    hover:bg-gray-100 dark:hover:bg-gray-700 
+                    transition-colors duration-150`}                >
                   <td className="whitespace-nowrap px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                     {student.studentId}
                   </td>
@@ -314,7 +339,7 @@ export default function ScoreTable() {
               <p>Student ID: {selectedEnrollmentId}</p>
 
               <input
-                type="number"
+                type="text"
                 value={selectedScore ?? ""}
                 onChange={(e) => setSelectedScore(Number(e.target.value))}
                 className="mt-2 px-4 py-2 border rounded w-full"

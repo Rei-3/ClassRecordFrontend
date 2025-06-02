@@ -15,25 +15,51 @@ import { AppDispatch, IRootState } from "@/store";
 import { useDispatch } from "react-redux";
 import { setSearchValue } from "@/store/api/slices/searchSice";
 import AddAcitivityModal from "@/components/modals/addActivityModal";
-import AddActivity from "../recordGrade/addActivity";
 import SubjectFinalGradeCard from "./subjectsCardFinal";
 import Link from "next/link";
 import { useGetGradeCategoryQuery } from "@/store/api/apiSlice/get/gradesApiSlice";
+import { usePostMakeAttendanceForTodayMutation } from "@/store/api/apiSlice/post/gradesApiSlice";
+import ConfirmationModal from "@/components/modals/confirmationModal";
+import ErrorModal from "@/components/modals/errorModal";
+import SuccessModal from "@/components/modals/successModal";
+import GradesXlxs from "@/components/xlxs/termGradeXlxs";
+import { unSlug } from "@/lib/utils/utils";
+
 
 // Sorting Keys
 type SortableKeys = keyof StudentSemRecord;
 
 export default function SubjectClassRecordTable() {
-  // State for term filtering
-  const [selectedTerm, setSelectedTerm] = useState<number>(1);
 
-  //Redux search
+  const params = useParams();
+  const { subject, sem, ay, section } = params;
+
+  const subjectName = typeof subject === "string" ? unSlug(subject) : "";
+  const semesterName = typeof sem === "string" ? unSlug(sem) : "";
+  const acadYr = typeof ay === "string" ? unSlug(ay) : "";
+  const sectionName= typeof section === "string" ? unSlug(section) : "";
+  
+  // State for term filtering
+  const { data: termData } = useGetTermQuery();
+  const [selectedTerm, setSelectedTerm] = useState<number>(1);
+  const [errorModal, setErrorModal] = useState({
+    isOpen: false,
+    message: "",
+  });
+  const [isSuccessOpen, setIsSuccessOpen] = useState({
+    isOpen: false,
+    message: "",
+  });
+  
+  // Redux search
   const searchTerm = useSelector(
     (state: IRootState) => state.search.searchValue
   );
   const dispatch = useDispatch<AppDispatch>();
 
-  //   const [searchTerm, setSearchTerm] = useState("");
+  // Modal state
+  const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
+
   const [sortConfig, setSortConfig] = useState<{
     key: SortableKeys;
     direction: "asc" | "desc";
@@ -51,19 +77,53 @@ export default function SubjectClassRecordTable() {
   const { data: semGrades, refetch: refetchSemGrades } = useGetSemGradesQuery({
     teachingLoadDetailId: Number(id),
     termId: selectedTerm,
+  }, {
+    refetchOnMountOrArgChange: true,
   });
+
   const { data: categoryData } = useGetGradeCategoryQuery();
 
   const {
     data: finalGrades,
     isLoading,
     isError,
-    refetch: refetchFinalGrades,
+    refetch
   } = useGetFinalGradesQuery({ teachingLoadDetailId: Number(id) });
 
-  const { data: termData } = useGetTermQuery();
+  const [postAttendanceToday] = usePostMakeAttendanceForTodayMutation();
 
+  const handleSuccessResponse = () =>{
+    setIsSuccessOpen({
+      isOpen: true,
+      message: "Successfully added an Attendance Sheet for Today"
+    })
+  }
 
+  const handleErrorResponse = (error: any) => {
+    setErrorModal({
+      isOpen: true,
+      message: error?.data?.details?.debugMessage || "An error occurred",
+    });
+  };
+  
+  const handleAttendanceToday = () => {
+    setIsAttendanceModalOpen(true);
+  };
+
+  const handleConfirmAttendance = async () => {
+    setIsAttendanceModalOpen(false);
+    try {
+      await postAttendanceToday({
+        teachingLoadDetailId: Number(id),
+        termId: selectedTerm,
+        categoryId: 4
+      }).unwrap();
+      refetchSemGrades();
+     handleSuccessResponse();// Refresh the data after successful attendance marking
+    } catch (error) {
+     handleErrorResponse(error)
+    }
+  };
 
   // Filtering with term support
   const filteredStudents = useMemo(() => {
@@ -82,7 +142,7 @@ export default function SubjectClassRecordTable() {
     return filtered;
   }, [semGrades, searchTerm, selectedTerm]);
 
-  // Sorting (unchanged)
+  // Sorting
   const sortedStudents = useMemo(() => {
     return [...filteredStudents].sort((a, b) => {
       const key = sortConfig.key;
@@ -102,7 +162,7 @@ export default function SubjectClassRecordTable() {
     });
   }, [filteredStudents, sortConfig]);
 
-  // Pagination (unchanged)
+  // Pagination
   const totalPages = Math.ceil(sortedStudents.length / itemsPerPage);
   const paginatedStudents = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
@@ -174,15 +234,12 @@ export default function SubjectClassRecordTable() {
 
   return (
     <>
-      {/* Rest of your UI remains exactly the same */}
       <SubjectClassRecordHeader />
       <p className="mb-2 text-gray-500 dark:text-gray-400">
         Manage and view your class records efficiently
       </p>
 
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        {/* Search input - unchanged */}
-
         <div className="relative max-w-md flex-grow">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
             <svg
@@ -222,23 +279,30 @@ export default function SubjectClassRecordTable() {
             </span>
           </div>
         </div>
+       
 
-        <div>
-          <AddAcitivityModal>
-            <AddActivity
-              onSuccess={() => {
-                refetchSemGrades();
-                refetchFinalGrades();
-              }}
-              termId={selectedTerm}
-            />
-          </AddAcitivityModal>
+        <div className="flex flex-wrap items-center justify-start gap-4">
+          <button 
+            className="rounded-md bg-orange-600 px-4 py-2 text-white font-semibold shadow hover:bg-orange-700 active:scale-95 transition"
+            onClick={handleAttendanceToday}
+          >
+            Add Attendance For Today
+          </button>
+
+          <AddAcitivityModal termId={selectedTerm} />
+
+          <GradesXlxs
+          teachingLoadDetailId={Number(id)} 
+          subjectName={subjectName} 
+          sem={semesterName} 
+          academicYear={acadYr} 
+          section={ sectionName }     
+        />
         </div>
       </div>
 
-      {/* Table - unchanged */}
       <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
-        <table className="min-w-f ull divide-y divide-gray-200 dark:divide-gray-700">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-700">
             <tr>
               <th
@@ -269,7 +333,6 @@ export default function SubjectClassRecordTable() {
                   <Link
                     href={`/subjects/score-table/${Number(id)}/${selectedTerm}/${cat.id}/${cat.name}/${termType}?search=${encodeURIComponent(searchTerm)}`}
                     className={`${colorClasses[cat.id % colorClasses.length]} hover:underline`}
-
                   >
                     {cat.name}
                   </Link>
@@ -282,7 +345,7 @@ export default function SubjectClassRecordTable() {
                 onClick={() => requestSort("finalGrade")}
               >
                 <div className="flex items-center">
-                  <span>Final Grade</span>
+                  <span>Term Grade</span>
                   {getSortIcon("finalGrade")}
                 </div>
               </th>
@@ -300,10 +363,16 @@ export default function SubjectClassRecordTable() {
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
             {paginatedStudents.length > 0 ? (
-              paginatedStudents.map((student) => (
+              paginatedStudents.map((student, index) => (
                 <tr
                   key={student.studentId}
-                  className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className={`
+                    ${index % 2 === 0 ? 
+                      'bg-slate-200 dark:bg-gray-900' : 
+                      'bg-gray-50 dark:bg-gray-800'
+                    }
+                    hover:bg-gray-100 dark:hover:bg-gray-700 
+                    transition-colors duration-150`}
                 >
                   <td className="whitespace-nowrap px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                     {student.studentId}
@@ -333,7 +402,7 @@ export default function SubjectClassRecordTable() {
                   </td>
                   <td className="whitespace-nowrap px-4 py-4 text-center text-sm text-gray-600 dark:text-gray-300">
                     <span className="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                      {student.finalGrade || 0}%
+                      {student.finalGrade || 0}
                     </span>
                   </td>
                   <td className="whitespace-nowrap px-4 py-4 text-center text-sm">
@@ -363,7 +432,6 @@ export default function SubjectClassRecordTable() {
         </table>
       </div>
 
-      {/* Pagination - unchanged */}
       <div className="mt-6 flex items-center justify-between">
         <div className="text-sm text-gray-700 dark:text-gray-300">
           Showing{" "}
@@ -441,6 +509,29 @@ export default function SubjectClassRecordTable() {
         isLoading={isLoading}
         isError={isError}
       />
+
+      <ConfirmationModal
+        isOpen={isAttendanceModalOpen}
+        title="Confirm Attendance"
+        message="Are you sure you want to mark attendance for today? This action cannot be undone."
+        onConfirm={handleConfirmAttendance}
+        onCancel={() => setIsAttendanceModalOpen(false)}
+        confirmText="Mark Attendance"
+        cancelText="Cancel"
+      />
+
+<ErrorModal
+  isOpen={errorModal.isOpen}
+  onClose={() => setErrorModal(prev => ({...prev, isOpen: false}))}
+  message={errorModal.message}
+
+/>
+<SuccessModal
+  isOpen={isSuccessOpen.isOpen}
+  onClose={() => setIsSuccessOpen(prev => ({...prev, isOpen: false}))}
+  message="Attendance recorded"
+  desc="Today's attendance has been successfully marked."
+/>
     </>
   );
 }

@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link';
 import { IRootState } from '@/store';
@@ -130,11 +130,25 @@ const Header = () => {
     };
 
     const [search, setSearch] = useState(false);
-    const {username} = useSelector((state: IRootState)=>state.auth);
+    const {username, fname, lname, role} = useSelector((state: IRootState)=>state.auth);
+    
+    const fullName = (fname && lname)
+    ? `${lname}, ${fname}`
+    : localStorage.getItem('full_name') || '';
+
+    const roleRn = role || localStorage.getItem('role') || ''; 
+    const usernameRn = username || localStorage.getItem('username') || '';
+
+    const removeAuth = () => {
+        localStorage.removeItem('full_name');
+        localStorage.removeItem('username');
+        localStorage.removeItem('role');
+    }
 
     const handleLogout = () => {
         router.push('/login');
         dispatch(clearAuth());
+        removeAuth();
         logout();
         
     }
@@ -158,7 +172,7 @@ const Header = () => {
                     </div>
 
             
-                    <form
+                    {/* <form
                                 className={`${search && '!block'} absolute inset-x-0 top-1/2 z-10 mx-4 hidden -translate-y-1/2 sm:relative sm:top-0 sm:mx-0 sm:block sm:translate-y-0`}
                                 onSubmit={() => setSearch(false)}
                             >
@@ -182,7 +196,7 @@ const Header = () => {
                                 className="search_btn rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 dark:bg-dark/40 dark:hover:bg-dark/60 sm:hidden"
                             >
                                 <IconSearch className="mx-auto h-4.5 w-4.5 dark:text-[#d0d2d6]" />
-                            </button>
+                            </button> */}
 
                     <div className="flex items-center space-x-1.5 ltr:ml-auto rtl:mr-auto rtl:space-x-reverse dark:text-[#d0d2d6] sm:flex-1 ltr:sm:ml-0 sm:rtl:mr-0 lg:space-x-2">
                         <div className="sm:ltr:mr-auto sm:rtl:ml-auto">
@@ -243,22 +257,26 @@ const Header = () => {
                                         <div className="flex items-center px-4 py-4">
                                             <img className="h-10 w-10 rounded-md object-cover" src="/assets/images/default.jpg" alt="userProfile" />
                                             <div className="truncate ltr:pl-4 rtl:pr-4">
-                                                <h4 className="text-base">
-                                                   {username}
+                                                <h4 className="text-base dark:text-slate-300">
+                                                   {fullName}
                                 
                                                 </h4>
+                                                <h5 className="text-xs italic mb-1 text-slate-600 dark:text-slate-400">
+                                                   @{usernameRn}
+                                
+                                                </h5>
                                                 <button className="rounded bg-success-light px-1 text-xs text-success ltr: rtl:ml-2">
-                                                    Active
+                                                    {roleRn}
                                                 </button>
                                             </div>
                                         </div>
                                     </li>
-                                    <li>
+                                    {/* <li>
                                         <Link href="/users/profile" className="dark:hover:text-white">
                                             <IconUser className="h-4.5 w-4.5 shrink-0 ltr:mr-2 rtl:ml-2" />
                                             Profile
                                         </Link>
-                                    </li>
+                                    </li> */}
                                     {/* <li>
                                         <Link href="/apps/mailbox" className="dark:hover:text-white">
                                             <IconMail className="h-4.5 w-4.5 shrink-0 ltr:mr-2 rtl:ml-2" />

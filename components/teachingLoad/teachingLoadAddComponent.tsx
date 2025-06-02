@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
@@ -25,6 +25,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   addSubject,
   clearSelectedDays,
+  fetchSubjectsStart,
   removeSubject,
 } from "@/store/api/slices/teachingLoadSlice";
 import { useRouter } from "next/navigation";
@@ -32,7 +33,8 @@ import SuccessModal from "@/components/modals/successModal";
 import DayCheckerForm from "./forms/dayCheckerForm";
 import ErrorModal from "../modals/errorModal";
 import Flatpickr from "react-flatpickr";
-import "flatpickr/dist/themes/material_blue.css"; // Optional: Import a Flatpickr theme
+import "flatpickr/dist/themes/material_blue.css";
+import ConfirmationModal from "@/components/modals/confirmationModal";
 
 // Zod schemas
 const addSubjectSchema = z.object({
@@ -49,7 +51,8 @@ const TeachingLoadForm = () => {
   const router = useRouter();
 
   const subjects = useSelector((state: any) => state.teachingLoad.subjects);
-  const { data: subjectList = [], isLoading: isLoadingSubjects } = useGetSubjectQuery();
+  const { data: subjectList = [], isLoading: isLoadingSubjects } =
+    useGetSubjectQuery();
   const { data: sem = [], isLoading: isLoadingSem } = useGetSemQuery();
 
   const [postTeachingLoad] = usePostTeachingLoadMutation();
@@ -63,20 +66,25 @@ const TeachingLoadForm = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [errorCode, setErrorCode] = useState("");
 
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+  const [isRemoveConfirmation, setIsRemoveConfirmation] = useState(false);
+  const [subjectToRemove, setSubjectToRemove] = useState<number | null>(null);
   const [startTime, setStartTime] = useState<any>("07:00 AM");
-  const [endTime, setEndTime] = useState<any>("8:00 PM");
-  
+  const [endTime, setEndTime] = useState<any>("8:00 AM");
+
   // Generate year options for academic year selector
   const currentYear = new Date().getFullYear();
   const yearOptions = [];
   for (let i = currentYear - 5; i <= currentYear + 5; i++) {
     yearOptions.push(i);
   }
-  
+
   // Default to current academic year
   const defaultAcademicYear = `${currentYear}-${currentYear + 1}`;
 
-  const selectedDays = useSelector((state:any) => state.teachingLoad.SelectedDays);
+  const selectedDays = useSelector(
+    (state: any) => state.teachingLoad.SelectedDays
+  );
   const {
     register,
     handleSubmit,
@@ -94,18 +102,18 @@ const TeachingLoadForm = () => {
       section: "",
     },
   });
-  
+
   // Watch the start year to update the academic year string
   const [startYear, setStartYear] = useState(currentYear);
   const [endYear, setEndYear] = useState(currentYear + 1);
-  
+
   // Update academic year when start or end year changes
   useEffect(() => {
     setValue("academicYear", `${startYear}-${endYear}`);
   }, [startYear, endYear, setValue]);
 
   const handleAddSubject = handleSubmit((data) => {
-    if(!selectedDays || selectedDays.length === 0) {
+    if (!selectedDays || selectedDays.length === 0) {
       setErrorMessage("Please select at least one day");
       setIsError(true);
       return;
@@ -128,14 +136,14 @@ const TeachingLoadForm = () => {
         SubjectId: data.subjectId,
         schedule: formattedSchedule,
         section: data.section,
-        id: 0
+        id: 0,
       })
     );
-    
+
     // Reset only subject-related fields, preserving semester/year information
     reset({
       semId: data.semId,
-      academicYear: data.academicYear, // Keep academic year
+      academicYear: data.academicYear,
       subjectId: undefined,
       section: "",
     });
@@ -143,13 +151,23 @@ const TeachingLoadForm = () => {
   });
 
   const handleRemoveSubject = (id: number) => {
-    dispatch(removeSubject(id));
+    setSubjectToRemove(id);
+    setIsRemoveConfirmation(true);
+  };
+
+  const confirmRemoveSubject = () => {
+    if (subjectToRemove !== null) {
+      dispatch(removeSubject(subjectToRemove));
+    }
+    setIsRemoveConfirmation(false);
+    setSubjectToRemove(null);
   };
 
   const handleSubmitTeachingLoad = async () => {
-    // Get values without validation
+    setIsConfirmationOpen(false);
+
     const formValues = getValues();
-    
+
     try {
       const teachingLoadResponse = await postTeachingLoad({
         semId: formValues.semId,
@@ -183,7 +201,6 @@ const TeachingLoadForm = () => {
     }
   };
 
-  // Handle year change and ensure end year is always greater than start year
   const handleStartYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newStartYear = parseInt(e.target.value);
     setStartYear(newStartYear);
@@ -194,14 +211,14 @@ const TeachingLoadForm = () => {
 
   return (
     <div className="mx-auto flex max-w-full flex-col space-y-6 p-4 md:flex-row md:space-x-5 md:space-y-0">
-      <Card className="mb-8 w-full">
+      <Card className="mb-8 w-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
         <CardHeader>
           <CardTitle>
             <div className="mb-8 text-center">
-              <h1 className="mb-2 text-2xl font-bold text-gray-500">
+              <h1 className="mb-2 text-2xl font-bold text-gray-black dark:gray-500">
                 Add Teaching Load
               </h1>
-              <p className="text-base text-gray-600">
+              <p className="text-base text-black dark:text-gray-500">
                 Assign subjects and schedule for the semester
               </p>
             </div>
@@ -234,29 +251,32 @@ const TeachingLoadForm = () => {
             <div className="flex items-center gap-2">
               <select
                 value={startYear}
-                onChange={handleStartYearChange}
+                onChange={(e) => {
+                  const selectedStartYear = parseInt(e.target.value);
+                  setStartYear(selectedStartYear);
+                  setEndYear(selectedStartYear + 1); // auto-update endYear
+                }}
                 className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm text-gray-700 file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {yearOptions.map(year => (
-                  <option key={year} value={year}>{year}</option>
+                {yearOptions.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
                 ))}
               </select>
+
               <span className="font-medium text-gray-700">-</span>
-              <select
+
+              <input
                 value={endYear}
-                onChange={(e) => setEndYear(parseInt(e.target.value))}
-                className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm text-gray-700 file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {yearOptions
-                  .filter(year => year > startYear)
-                  .map(year => (
-                    <option key={year} value={year}>{year}</option>
-                  ))}
-              </select>
+                disabled
+                className="text-muted-foreground border-input focus-visible:ring-ring flex h-10 w-full cursor-not-allowed rounded-md border bg-gray-100 px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:bg-gray-200 dark:text-black"
+              />
             </div>
-            <input 
-              type="hidden" 
-              {...register("academicYear")} 
+
+            <input
+              type="hidden"
+              {...register("academicYear")}
               value={`${startYear}-${endYear}`}
             />
             {errors.academicYear && (
@@ -325,7 +345,7 @@ const TeachingLoadForm = () => {
 
             <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <div className="flex items-center gap-2 form">
+                <div className="form flex items-center gap-2">
                   <div>
                     <label className="mb-1 block font-medium">Start Time</label>
                     <Flatpickr
@@ -340,7 +360,7 @@ const TeachingLoadForm = () => {
                       className="form-input"
                     />
                   </div>
-                  <span className="font-bold mt-4">-</span>
+                  <span className="mt-4 font-bold">-</span>
                   <div>
                     <label className="mb-1 block font-medium">End Time</label>
                     <Flatpickr
@@ -363,7 +383,7 @@ const TeachingLoadForm = () => {
                 <Input
                   id="section"
                   placeholder="AYZ"
-                  className="text-gray-700 form-input"
+                  className="form-input text-gray-700"
                   {...register("section")}
                 />
                 {errors.section && (
@@ -385,7 +405,7 @@ const TeachingLoadForm = () => {
         </CardContent>
       </Card>
 
-      <Card className="mb-8 w-full">
+      <Card className="mb-8 w-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
         <CardHeader>
           <CardTitle>Assigned Subjects</CardTitle>
           <CardDescription>
@@ -403,8 +423,9 @@ const TeachingLoadForm = () => {
                   <div>
                     <span className="font-medium">
                       {
-                        subjectList.find((item: any) => item.id === subject.SubjectId)
-                          ?.subjectDesc
+                        subjectList.find(
+                          (item: any) => item.id === subject.SubjectId
+                        )?.subjectDesc
                       }
                     </span>
                     <span className="mx-2">|</span>
@@ -431,14 +452,44 @@ const TeachingLoadForm = () => {
         <CardFooter>
           <div className="flex w-full justify-end text-gray-800">
             <Button
-              onClick={handleSubmitTeachingLoad}
+              onClick={() => setIsConfirmationOpen(true)}
               className="bg-green-500 hover:bg-green-600"
+              disabled={subjects.length === 0 || isLoadingSubjects || isLoadingSem}
             >
               Submit Teaching Load
             </Button>
           </div>
         </CardFooter>
       </Card>
+
+      <ConfirmationModal
+        isOpen={isRemoveConfirmation}
+        title="Remove Subject"
+        message={`Are you sure you want to remove "${
+          subjectList.find(
+            (item: any) => item.id === subjects.find((s: { id: number | null; }) => s.id === subjectToRemove)?.SubjectId
+          )?.subjectDesc
+        }" from your teaching load?`}
+        onConfirm={confirmRemoveSubject}
+        onCancel={() => {
+          setIsRemoveConfirmation(false);
+          setSubjectToRemove(null);
+        }}
+        confirmText="Remove"
+        danger={true}
+      />
+
+      <ConfirmationModal
+        isOpen={isConfirmationOpen}
+        title="Confirm Submission"
+        message={`Are you sure you want to submit ${
+          subjects.length
+        } subject(s) for ${getValues().academicYear}?`}
+        onConfirm={handleSubmitTeachingLoad}
+        onCancel={() => setIsConfirmationOpen(false)}
+        confirmText="Submit"
+        danger={false}
+      />
 
       <SuccessModal
         isOpen={isSuccessModalOpen}

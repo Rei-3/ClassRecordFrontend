@@ -17,9 +17,15 @@ const roleBasedRoutes: Record<string, string[]> = {
   // student: ["/teachingLoads"],
 };
 
-const protectedRoutes = ["/teachingLoads/**", "/subjects/**", "/admin/**"];
-const publicRoutes = ["/login", "unauthorized", "/register", "/forgot-password", "/reset-password"];
-const excludedRoutes = ["/_next/static", "/_next/image", "/favicon.ico", "/api/auth", "/assets"];
+const protectedRoutes = [
+  "/teaching-loads/**",
+  "/teaching-loads",
+  "/subjects/**",
+  "/admin/**",
+  "/admin"
+];
+const publicRoutes = ["/login", "/unauthorized", "/register", "/forgot-password", "/reset-password"];
+const excludedRoutes = ["/_next/static","/unauthorized", "/_next/image", "/favicon.ico", "/api/auth", "/assets"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -42,7 +48,8 @@ export function middleware(request: NextRequest) {
         validToken = true;
       }
     } catch (error) {
-      console.error("Token decode error:", error);
+      // console.error("Token decode error:", error);
+      error
     }
   }
   // console.log(encryptedToken)
@@ -71,8 +78,10 @@ export function middleware(request: NextRequest) {
     const hasAccess = roleRoutes.some(route => pathname.startsWith(route));
 
     if (!hasAccess) {
+      console.warn(`Access denied for ${user?.role} on ${pathname}`);
       return NextResponse.redirect(new URL("/unauthorized", request.url));
     }
+    
   }
 
   return NextResponse.next();

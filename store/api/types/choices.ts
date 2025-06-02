@@ -5,6 +5,17 @@ export interface Subjects {
     units: number;
 }
 
+export interface SubjectsWithCourse {
+
+    id: number;
+    subjectDesc: string;
+    subjectName: string;
+    units: number;
+    courseId: number;
+    courseName: string;
+    
+}
+
 export interface Sem {
     id: number;
     semName: string;

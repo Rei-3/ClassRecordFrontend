@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { StudentSemRecord, StudentFinal } from "@/store/api/types/classRecord"; // Assuming this is the correct import path
+import {  StudentFinal } from "@/store/api/types/classRecord"; // Assuming this is the correct import path
 import { useParams } from "next/navigation";
 import { useGetFinalGradesQuery } from "@/store/api/apiSlice/get/gradesApiSlice"; // Make sure this API slice fetches the final grades correctly
 import { useSelector } from "react-redux";
@@ -184,7 +184,7 @@ export default function SubjectFinalGradeCard({finalGrades, isLoading, isError}:
                 scope="col"
                 className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300"
               >
-                Midterm
+                Final
               </th>
               <th
                 scope="col"
@@ -206,11 +206,16 @@ export default function SubjectFinalGradeCard({finalGrades, isLoading, isError}:
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
             {paginatedStudents.length > 0 ? (
-              paginatedStudents.map((student) => (
+              paginatedStudents.map((student,index) => (
                 <tr
                   key={student.studentId}
-                  className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
-                >
+                  className={`
+                    ${index % 2 === 0 ? 
+                      'bg-slate-200 dark:bg-gray-900' : 
+                      'bg-gray-50 dark:bg-gray-800'
+                    }
+                    hover:bg-gray-100 dark:hover:bg-gray-700 
+                    transition-colors duration-150`}                >
                   <td className="whitespace-nowrap px-4 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                     {student.studentId}
                   </td>
@@ -219,17 +224,17 @@ export default function SubjectFinalGradeCard({finalGrades, isLoading, isError}:
                   </td>
                   <td className="whitespace-nowrap px-4 py-4 text-center text-sm text-gray-600 dark:text-gray-300">
                     <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                      {student.termGrades.Midterm}%
+                      {student.termGrades.Midterm}
                     </span>
                   </td>
                   <td className="whitespace-nowrap px-4 py-4 text-center text-sm text-gray-600 dark:text-gray-300">
                     <span className="inline-flex items-center rounded-full bg-purple-100 px-3 py-1 text-sm font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                      {student.termGrades.Finals || 0}%
+                      {student.termGrades.Final }
                     </span>
                   </td>
                   <td className="whitespace-nowrap px-4 py-4 text-center text-sm text-gray-600 dark:text-gray-300">
                     <span className="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-800 dark:bg-amber-900 dark:text-amber-200">
-                      {student.semesterGrade}%
+                      {student.semesterGrade}
                     </span>
                   </td>
                   <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-700 dark:text-gray-300">

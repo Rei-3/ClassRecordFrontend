@@ -1,3 +1,4 @@
+
 import { Category } from "./choices";
 
 export interface StudentSemRecord  {
@@ -25,10 +26,11 @@ export interface StudentFinal{
 
  interface TermGrades {
     Midterm: number;
-    Finals: string;
+    Final: number;
   }
 
 export interface GradingComposition {
+
     teachingLoadDetailId: number;
     composition: Composition[];
   }
@@ -38,6 +40,27 @@ export interface GradingComposition {
     percentage: number;
     category: Category;
   }
+
+export interface Grading {
+  id: number;
+  desc: string;
+  numberOfItems: number;
+  catId: number;
+  termId: number; 
+  teachingLoadDetailId: number; 
+  date: string;
+}
+
+export interface GradingDetail {
+  gradingDetailId: number;
+  gradingId: number;
+  enrollmentId: number;
+  description: string;
+  conductedOn: string;
+  numberOfItems: number;
+  score: number;
+  recordedOn: string;
+}
 
 export interface PostGradingComposition {
     percentage: number;
@@ -58,26 +81,6 @@ export interface PostAddActivity {
     termId: number;
 }
 
-export interface Grading {
-    id: number;
-    desc: string;
-    numberOfItems: number;
-    catId: number;
-    termId: number; 
-    teachingLoadDetailId: number; 
-    date: string;
-  }
-
-export interface GradingDetail {
-  gradingDetailId: number;
-    gradingId: number;
-    enrollmentId: number;
-    description: string;
-    conductedOn: string;
-    numberOfItems: number;
-    score: number;
-    recordedOn: string;
-  }
 export interface RecordScore {
   enrollmentId: number;
   gradingId: number;
@@ -87,4 +90,27 @@ export interface RecordScore {
 export interface Editscore {
   gradingDetailId: number;
   score: number;
+}
+
+export interface TeachingLoadStatusEdit{
+  teachingLoadId: number;
+  status: string;
+}
+
+export interface BaseGradeMutation {
+  teachingLoadDetailId: number;
+  baseGrade: number;
+  percentage: number
+}
+
+export interface BaseGrade {
+  id: number;
+  baseGrade: number;
+  percentage: number;
+}
+
+export interface AttendanceSheet{
+  teachingLoadDetailId: number;
+  termId: number;
+  categoryId: number;
 }

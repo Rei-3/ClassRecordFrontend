@@ -24,40 +24,35 @@ export default function DayCheckerForm({ value, onChange }: DayCheckerFormProps)
   );
 
   const days: DayOption[] = [
-    { value: 'M', label: 'Monday' },
-    { value: 'T', label: 'Tuesday' },
-    { value: 'W', label: 'Wednesday' },
-    { value: 'TH', label: 'Thursday' },
-    { value: 'F', label: 'Friday' },
-    { value: 'Sat', label: 'Saturday' },
-    { value: 'Sun', label: 'Sunday' },
+    { value: 'Daily', label: 'Daily' },
+    { value: 'MWF', label: 'MWF' },
+    { value: 'TTH', label: 'TTH' },
+    { value: 'Saturday', label: 'Saturday' },
   ];
 
-  const handleChange = (selectedOptions: readonly DayOption[] | null) => {
+  const handleChange = (selectedOption: DayOption | null) => {
     dispatch(clearSelectedDays());
 
-    if (selectedOptions) {
-      selectedOptions.forEach((option) => {
-        dispatch(addSelectedDay(option.value));
-      });
+    if (selectedOption) {
+      dispatch(addSelectedDay(selectedOption.value));
+      onChange?.(selectedOption.value); // optional callback
     }
   };
 
-  // Map selected day strings from Redux to DayOption[]
-  const selectedValues = days.filter((day) =>
+  const selectedValue = days.find((day) =>
     selectedDays.includes(day.value)
-  );
+  ) || null;
 
   return (
     <div className="w-full">
       <Select
-        placeholder="Select Days"
+        placeholder="Select a Day"
         className="text-black"
         onChange={handleChange}
-        value={selectedValues} // controlled!
+        value={selectedValue}
         options={days}
-        isMulti
         isSearchable={false}
+        // isMulti removed
       />
     </div>
   );

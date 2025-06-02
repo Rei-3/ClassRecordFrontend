@@ -77,6 +77,8 @@ const CoverRegister = () => {
                   Enter your credentials to register
                 </p>
               </div>
+
+    
               <ComponentsAuthRegisterForm />
 
               <div className="relative my-7 text-center md:mb-9">

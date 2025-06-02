@@ -1,3 +1,5 @@
+import UserTable from "@/components/admin/usersTable";
+
 export default function UsersPage() {
     return (
         <div className="space-y-4">
@@ -5,6 +7,7 @@ export default function UsersPage() {
             <h1 className="text-2xl font-bold">Users Page</h1>
             <p>This is the users page.</p>
         </div>
+        <UserTable />
         </div>
     );
     }

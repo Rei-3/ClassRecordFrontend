@@ -1,15 +1,15 @@
-'use client'
-import { Dialog, Transition } from '@headlessui/react'
-import { useState, Fragment, ReactNode } from 'react'
+"use client";
+import { Dialog, Transition } from "@headlessui/react";
+import { useState, Fragment, ReactNode } from "react";
+import AddActivity from "../teachingLoad/recordGrade/addActivity";
 
-
-interface AddAcitivityModalProps {
-    children: ReactNode;
-    title?: string;
+interface AddActivityModalProps {
+  title?: string;
+  termId: number;
 }
 
-export default function AddAcitivityModal({children }: AddAcitivityModalProps) {
-  const [isOpen, setIsOpen] = useState(false)
+export default function AddActivityModal({ termId }: AddActivityModalProps) {
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="mb-0">
@@ -17,23 +17,23 @@ export default function AddAcitivityModal({children }: AddAcitivityModalProps) {
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="flex rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+          className="flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
         >
-           <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="mr-2 h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-              />
-            </svg>
-            <p> Add Activity </p> 
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="mr-2 h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+            />
+          </svg>
+          Add Activity
         </button>
       </div>
 
@@ -64,33 +64,37 @@ export default function AddAcitivityModal({children }: AddAcitivityModalProps) {
               >
                 <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all dark:bg-gray-800">
                   <div className="flex items-center justify-between">
-                    <Dialog.Title
-                      as="h3"
-                      className="text-lg font-medium leading-6 text-gray-900 dark:text-white"
-                    >
-
-                      {/* Title goes here */}
-
+                    <Dialog.Title className="text-lg font-medium text-gray-900 dark:text-white">
+                      Add Activity
                     </Dialog.Title>
                     <button
                       type="button"
-                      className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none dark:bg-gray-800"
                       onClick={() => setIsOpen(false)}
+                      className="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none dark:bg-gray-800"
                     >
                       <span className="sr-only">Close</span>
-                   
+                      <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path
+                          fillRule="evenodd"
+                          d="M10 8.586L15.95 2.636a1 1 0 011.414 1.414L11.414 10l5.95 5.95a1 1 0 01-1.414 1.414L10 11.414l-5.95 5.95a1 1 0 01-1.414-1.414L8.586 10 2.636 4.05a1 1 0 011.414-1.414L10 8.586z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
                     </button>
                   </div>
 
-                  <div className="mt-4 ">
-                    {children}
+                  <div className="mt-4">
+                    <AddActivity
+                      onSuccess={() => setIsOpen(false)}
+                      onClose={() => setIsOpen(false)}
+                      termId={termId}
+                    />
                   </div>
 
-                  <div className="mt-6 flex justify-end space-x-3">
-          
+                  <div className="mt-6 flex justify-end">
                     <button
                       type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
                       onClick={() => setIsOpen(false)}
                     >
                       Close
@@ -103,5 +107,5 @@ export default function AddAcitivityModal({children }: AddAcitivityModalProps) {
         </Dialog>
       </Transition>
     </div>
-  )
+  );
 }

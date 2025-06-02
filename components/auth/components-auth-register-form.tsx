@@ -14,6 +14,11 @@ import { IRootState } from "@/store";
 import { useRegisterTeacherMutation } from "@/store/api/apiSlice/authApiSlice";
 import { Register } from "@/store/api/types/authType";
 import RegisterModal from "../modals/registerModal";
+import ErrorModal from "../modals/errorModal";
+import build from "next/dist/build";
+import RequestingModal from "../modals/sendingModal";
+import SuccessModal from "../modals/successModal";
+
 
 // Define the validation schema using Zod
 const schema = z.object({
@@ -33,6 +38,9 @@ const schema = z.object({
 const ComponentsAuthRegisterForm: React.FC = () => {
   const isRtl = useSelector((state: IRootState) => state.themeConfig.rtlClass) === 'rtl';
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [Error, setError] = useState<string []>([]);
 
   const defaultDate = new Date();
   const year = defaultDate.getFullYear();
@@ -57,15 +65,24 @@ const ComponentsAuthRegisterForm: React.FC = () => {
     },
   });
 
-  const [registerTeacher, { isLoading }] = useRegisterTeacherMutation();
+  const [registerTeacher, { isLoading, isSuccess }] = useRegisterTeacherMutation();
 
   const onSubmit = async (data: Register) => {
     try {
       const response = await registerTeacher(data).unwrap();
-      console.log(response);
-      setIsModalOpen(true);
+   
+      
     } catch (e: any) {
-      console.log(e);
+      if (e?.data?.details) {
+        const details = e.data.details;
+        const errorMessages = Object.values(details);
+    
+        setError(errorMessages as string[]); // save as array
+        setIsErrorModalOpen(true);
+      } else {
+        setError(["Something went wrong"])
+        setIsErrorModalOpen(true);
+      }
     }
   };
 
@@ -77,8 +94,42 @@ const ComponentsAuthRegisterForm: React.FC = () => {
     setIsModalOpen(false);
   };
 
+  const handleCloseErrorModal = () => {
+    setIsErrorModalOpen(false);
+  }
+
+  const close = () => {
+    setIsOpen(false);
+    setIsModalOpen(true);
+  }
+
   return (
     <>
+    {isLoading && (
+        <RequestingModal isOpen={isOpen} onClose={()=>{close}}>
+          <div>
+          
+          </div>
+           
+        </RequestingModal>
+      )}
+    {isSuccess && (
+        <SuccessModal
+          isOpen={isOpen}
+          onClose={close}
+          message="Temporarily Registered"
+          desc="Check your email for the OTP!"
+        />
+      )}
+
+
+     <ErrorModal isOpen={isErrorModalOpen} onClose={handleCloseErrorModal}>
+  <ul className="text-red-500 list-disc pl-5 space-y-1">
+    {Error.map((msg, idx) => (
+      <li key={idx}>{msg}</li>
+    ))}
+  </ul>
+</ErrorModal>
       <form
         className="space-y-5 dark:text-white"
         onSubmit={handleSubmit(onSubmit)}
@@ -248,7 +299,10 @@ const ComponentsAuthRegisterForm: React.FC = () => {
       
       {/* Always render the modal component, but control visibility with isOpen */}
       <RegisterModal isOpen={isModalOpen} onClose={handleCloseModal} />
+    
+      
     </>
+    
   );
 };
 

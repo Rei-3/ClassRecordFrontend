@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useGetGradeCategoryQuery, useGetGradingCompositionQuery } from "@/store/api/apiSlice/get/gradesApiSlice";
 import { usePostGradingCompositionMutation } from "@/store/api/apiSlice/post/gradesApiSlice";
+import ConfirmationModal from "@/components/modals/confirmationModal";
 
 export default function AddGradingComposition() {
   const { id } = useParams();
@@ -11,11 +12,12 @@ export default function AddGradingComposition() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notification, setNotification] = useState({ visible: false, isSuccess: false, message: "" });
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
 
   const { data: categoryData } = useGetGradeCategoryQuery();
   const [postGradingCompositionData] = usePostGradingCompositionMutation();
-  const {refetch} = useGetGradingCompositionQuery(
-    {teachingLoadDetailId: Number(id)},
+  const { refetch } = useGetGradingCompositionQuery(
+    { teachingLoadDetailId: Number(id) },
   );
 
   const handleInputChange = (field: string, value: string) => {
@@ -39,6 +41,7 @@ export default function AddGradingComposition() {
   };
 
   const handleSubmit = async () => {
+    setIsConfirmationOpen(false);
     const total = Object.values(formData).reduce((sum, v) => sum + Number(v), 0);
     if (total !== 100) {
       setErrors((prev) => ({ ...prev, total: "Total must equal exactly 100%" }));
@@ -64,18 +67,28 @@ export default function AddGradingComposition() {
       await Promise.all(payload.map((entry) => postGradingCompositionData(entry).unwrap()));
 
       setTimeout(() => {
-         refetch();
+        refetch();
       }, 1500);
 
-      setNotification({ visible: true, 
+      setNotification({ 
+        visible: true, 
         isSuccess: true, 
-        message: "Saved successfully!" });
+        message: "Saved successfully!" 
+      });
 
     } catch {
-      setNotification({ visible: true, isSuccess: false, message: "Failed to save. Try again." });
+      setNotification({ 
+        visible: true, 
+        isSuccess: false, 
+        message: "Failed to save. Try again." 
+      });
     } finally {
       setIsSubmitting(false);
-      setTimeout(() => setNotification({ visible: false, isSuccess: false, message: "" }), 3000);
+      setTimeout(() => setNotification({ 
+        visible: false, 
+        isSuccess: false, 
+        message: "" 
+      }), 3000);
     }
   };
 
@@ -93,9 +106,14 @@ export default function AddGradingComposition() {
       )}
 
       <div className="space-y-2">
-        <label className="text-sm text-gray-600 dark:text-gray-300">Total: <span className={`${total === 100 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'} font-semibold`}>{total}%</span></label>
+        <label className="text-sm text-gray-600 dark:text-gray-300">
+          Total: <span className={`${total === 100 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'} font-semibold`}>{total}%</span>
+        </label>
         <div className="w-full bg-gray-200 dark:bg-gray-700 h-3 rounded-full overflow-hidden">
-          <div className={`h-full transition-all duration-500 ${total === 100 ? 'bg-green-500' : 'bg-blue-500'}`} style={{ width: `${Math.min(total, 100)}%` }}></div>
+          <div 
+            className={`h-full transition-all duration-500 ${total === 100 ? 'bg-green-500' : 'bg-blue-500'}`} 
+            style={{ width: `${Math.min(total, 100)}%` }} 
+          />
         </div>
         {errors.total && <p className="text-xs text-red-600 dark:text-red-400">{errors.total}</p>}
       </div>
@@ -111,7 +129,10 @@ export default function AddGradingComposition() {
               max={100}
               className="peer w-full px-4 pt-6 pb-2 text-sm bg-transparent border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
             />
-            <label htmlFor={field} className="absolute left-4 top-2 text-xs text-gray-500 dark:text-gray-400 transition-all peer-focus:top-1 peer-focus:text-blue-600 dark:peer-focus:text-blue-400">
+            <label 
+              htmlFor={field} 
+              className="absolute left-4 top-2 text-xs text-gray-500 dark:text-gray-400 transition-all peer-focus:top-1 peer-focus:text-blue-600 dark:peer-focus:text-blue-400"
+            >
               {field.charAt(0).toUpperCase() + field.slice(1)}
             </label>
             {errors[field] && <p className="text-xs mt-1 text-red-500 dark:text-red-400">{errors[field]}</p>}
@@ -121,7 +142,7 @@ export default function AddGradingComposition() {
 
       <button
         disabled={!isValid || isSubmitting}
-        onClick={handleSubmit}
+        onClick={() => setIsConfirmationOpen(true)}
         className={`w-full py-3 text-sm font-medium rounded-md transition-colors duration-300 ${
           !isValid || isSubmitting
             ? "bg-gray-400 cursor-not-allowed"
@@ -130,6 +151,20 @@ export default function AddGradingComposition() {
       >
         {isSubmitting ? "Submitting..." : "Save Composition"}
       </button>
+
+      <ConfirmationModal
+        isOpen={isConfirmationOpen}
+        title="Confirm Grading Composition"
+        message={`You're about to set the grading composition to: \n
+        Quiz: ${formData.Quiz}%
+        Activity: ${formData.Activity}%
+        Exam: ${formData.Exam}%
+        Attendance: ${formData.Attendance}%`}
+        onConfirm={handleSubmit}
+        onCancel={() => setIsConfirmationOpen(false)}
+        confirmText="Confirm"
+        danger={false}
+      />
     </div>
   );
 }

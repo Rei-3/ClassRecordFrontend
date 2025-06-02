@@ -1,15 +1,14 @@
-'use client'
-import { Dialog, Transition } from '@headlessui/react'
-import { useState, Fragment, ReactNode } from 'react'
-
+"use client";
+import { Dialog, Transition } from "@headlessui/react";
+import { useState, Fragment, ReactNode } from "react";
 
 interface DefaultModalProps {
-    children: ReactNode;
-    title?: string;
+  children: ReactNode;
+  title?: string;
 }
 
-export default function DefaultModal({children, title }: DefaultModalProps) {
-  const [isOpen, setIsOpen] = useState(false)
+export default function DefaultModal({ children, title }: DefaultModalProps) {
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="mb-0">
@@ -19,12 +18,16 @@ export default function DefaultModal({children, title }: DefaultModalProps) {
           onClick={() => setIsOpen(true)}
           className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
         >
-            {title}
+          {title}
         </button>
       </div>
 
       <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={() => setIsOpen(false)}>
+        <Dialog
+          as="div"
+          className="relative z-10"
+          onClose={() => setIsOpen(false)}
+        >
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -54,9 +57,7 @@ export default function DefaultModal({children, title }: DefaultModalProps) {
                       as="h3"
                       className="text-lg font-medium leading-6 text-gray-900 dark:text-white"
                     >
-
                       {/* Title goes here */}
-
                     </Dialog.Title>
                     <button
                       type="button"
@@ -64,16 +65,12 @@ export default function DefaultModal({children, title }: DefaultModalProps) {
                       onClick={() => setIsOpen(false)}
                     >
                       <span className="sr-only">Close</span>
-                   
                     </button>
                   </div>
 
-                  <div className="mt-4 ">
-                    {children}
-                  </div>
+                  <div className="mt-4 ">{children}</div>
 
                   <div className="mt-6 flex justify-end space-x-3">
-          
                     <button
                       type="button"
                       className="inline-flex justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
@@ -89,5 +86,5 @@ export default function DefaultModal({children, title }: DefaultModalProps) {
         </Dialog>
       </Transition>
     </div>
-  )
+  );
 }

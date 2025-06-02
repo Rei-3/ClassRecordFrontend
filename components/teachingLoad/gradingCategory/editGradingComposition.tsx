@@ -1,23 +1,24 @@
-// EditGradingComposition.tsx
 "use client";
 
 import { useState } from "react";
 import { useGetGradeCategoryQuery } from "@/store/api/apiSlice/get/gradesApiSlice";
 import { usePutGradingCompositionMutation } from "@/store/api/apiSlice/put/gradesApiSlice";
+import ConfirmationModal from "@/components/modals/confirmationModal";
+// Adjust the import path as needed
 
 interface EditGradingCompositionProps {
   gradingComposition: any;
   onSuccess?: () => void;
 }
 
-export default function EditGradingComposition({ gradingComposition, onSuccess}: EditGradingCompositionProps) {
+export default function EditGradingComposition({ gradingComposition, onSuccess }: EditGradingCompositionProps) {
   const [formData, setFormData] = useState({ quiz: 0, activity: 0, exam: 0, attendance: 0 });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notification, setNotification] = useState({ visible: false, isSuccess: false, message: "" });
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const { data: categoryData } = useGetGradeCategoryQuery();
-
   const [putGradingComposition] = usePutGradingCompositionMutation();
 
   const handleInputChange = (field: string, value: string) => {
@@ -40,7 +41,8 @@ export default function EditGradingComposition({ gradingComposition, onSuccess}:
     setErrors(newErrors);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmitConfirmation = async () => {
+    setShowConfirmation(false);
     const total = Object.values(formData).reduce((sum, v) => sum + Number(v), 0);
     if (total !== 100) {
       setErrors((prev) => ({ ...prev, total: "Total must equal exactly 100%" }));
@@ -76,6 +78,9 @@ export default function EditGradingComposition({ gradingComposition, onSuccess}:
 
   const total = Object.values(formData).reduce((sum, v) => sum + Number(v), 0);
   const isValid = total === 100 && Object.keys(errors).length === 0;
+
+  // Generate confirmation message showing all values
+  
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-xl mx-auto space-y-6">
@@ -117,7 +122,7 @@ export default function EditGradingComposition({ gradingComposition, onSuccess}:
 
       <button
         disabled={!isValid || isSubmitting}
-        onClick={handleSubmit}
+        onClick={() => setShowConfirmation(true)}
         className={`w-full py-3 text-sm font-medium rounded-md transition-colors duration-300 ${
           !isValid || isSubmitting
             ? "bg-gray-400 cursor-not-allowed"
@@ -126,6 +131,17 @@ export default function EditGradingComposition({ gradingComposition, onSuccess}:
       >
         {isSubmitting ? "Submitting..." : "Save Composition"}
       </button>
+
+      <ConfirmationModal
+        isOpen={showConfirmation}
+        title="Confirm Grading Composition Changes"
+        message={"Are you sure you want to make these changes?\n\n"}
+        onConfirm={handleSubmitConfirmation}
+        onCancel={() => setShowConfirmation(false)}
+        confirmText="Confirm Changes"
+        cancelText="Cancel"
+        danger={false}
+      />
     </div>
   );
 }

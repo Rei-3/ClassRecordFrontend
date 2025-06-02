@@ -8,7 +8,7 @@ export default function TeachingLoadsPage() {
     <div className="p-4 py-0 pb-0 md:p-6">
       <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+          <h1 className="text-2xl dark:text-gray-200 font-bold tracking-tight md:text-3xl">
             List of Your Subjects
           </h1>
           <p className="text-muted-foreground">Manage your Subjects</p>

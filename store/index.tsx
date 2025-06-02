@@ -12,6 +12,7 @@ import searchReducer from './api/slices/searchSice';
 import { postGradesApiSlice } from './api/apiSlice/post/gradesApiSlice';
 import { putGradesApiSlice } from './api/apiSlice/put/gradesApiSlice';
 import scoreReducer from './api/slices/scoreSlice';
+import { getAdminApiSlice } from './api/apiSlice/get/adminApiSlice';
 
 
 
@@ -27,6 +28,7 @@ const rootReducer = combineReducers({
     [getSemApi.reducerPath]: getSemApi.reducer,
     [getSubjectApi.reducerPath]: getSubjectApi.reducer,
     [getGradesApi.reducerPath]: getGradesApi.reducer,
+    [getAdminApiSlice.reducerPath]: getAdminApiSlice.reducer,
 
     //put
     [putGradesApiSlice.reducerPath]: putGradesApiSlice.reducer,
@@ -53,6 +55,7 @@ export const store = configureStore({
             getSubjectApi.middleware,
             getTeachingLoad.middleware,
             getGradesApi.middleware,
+            getAdminApiSlice.middleware
         ),
 });
 
