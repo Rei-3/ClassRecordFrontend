@@ -250,8 +250,8 @@ const Sidebar = () => {
                     </li>
                   )}
 
-                  <li className="nav-item">
-                    <Link href="/apps/contacts" className="group">
+                  {/* <li className="nav-item">
+                    <Link href="/app/contacts" className="group">
                       <div className="flex items-center">
                         <IconMenuContacts className="shrink-0 group-hover:!text-primary" />
                         <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">
@@ -262,7 +262,7 @@ const Sidebar = () => {
                   </li>
 
                   <li className="nav-item">
-                    <Link href="/apps/scrumboard" className="group">
+                    <Link href="/app/scrumboard" className="group">
                       <div className="flex items-center">
                         <IconInfoCircle className="shrink-0 group-hover:!text-primary" />
                         <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">
@@ -270,7 +270,7 @@ const Sidebar = () => {
                         </span>
                       </div>
                     </Link>
-                  </li>
+                  </li> */}
                 </ul>
               </li>
             </ul>

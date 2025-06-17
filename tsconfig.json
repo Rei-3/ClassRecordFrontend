@@ -22,6 +22,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "components/teachingLoad/gradingCategory"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "components/teachingLoad/gradingCategory", "components/admin/coursesTable.tsx", "components/admin/homePage.jsx"],
   "exclude": ["node_modules"]
 }

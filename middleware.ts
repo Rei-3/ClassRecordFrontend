@@ -25,7 +25,7 @@ const protectedRoutes = [
   "/admin"
 ];
 const publicRoutes = ["/login", "/unauthorized", "/register", "/forgot-password", "/reset-password"];
-const excludedRoutes = ["/_next/static","/unauthorized", "/_next/image", "/favicon.ico", "/api/auth", "/assets"];
+const excludedRoutes = ["/_next/static","/unauthorized", "/_next/image", "/favicon.ico", "/api/auth", "/assets", "/assets/images"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

@@ -32,7 +32,7 @@ const TeachingLoadTable = () => {
 
 
   // Filter teaching loads based on search term
-  const filteredTeachingLoads = teachingLoads.filter(load =>
+  const filteredTeachingLoads = teachingLoads.filter((load: { subjectName: string; schedule: string; section: string; }) =>
     load.subjectName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     load.schedule?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     load.section?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -129,7 +129,7 @@ const TeachingLoadTable = () => {
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {currentItems.length > 0 ? (
-              currentItems.map((load) => (
+              currentItems.map((load:any) => (
                 <tr key={load.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                   <td className="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-300">
                     {load.id}

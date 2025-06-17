@@ -146,7 +146,7 @@ const Header = () => {
     }
 
     const handleLogout = () => {
-        router.push('/login');
+        router.replace('/login');
         dispatch(clearAuth());
         removeAuth();
         logout();

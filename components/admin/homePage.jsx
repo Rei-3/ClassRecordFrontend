@@ -71,7 +71,7 @@ export default function AdminDashboard() {
   const studentCount = users.filter((user) => user.role === "student").length;
 
   const roleDistribution = useMemo(() => {
-    const roleCount: Record<string, number> = {};
+    const roleCount = {};
     users.forEach((user) => {
       roleCount[user.role] = (roleCount[user.role] || 0) + 1;
     });
@@ -97,7 +97,7 @@ export default function AdminDashboard() {
 
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
-  const getRoleColor = (role: string) => {
+  const getRoleColor = (role) => {
     switch (role) {
       case "admin":
         return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100";

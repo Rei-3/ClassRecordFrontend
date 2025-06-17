@@ -35,7 +35,7 @@ const TeachingLoadsTable = () => {
   const [updateStatus, { isLoading: isUpdating }] = usePutStatusTeachingLoadMutation();
 
   // Create a map of teachingLoadId to subject count
-  const subjectCountMap = teachingLoadDetails.reduce((acc, detail) => {
+  const subjectCountMap = teachingLoadDetails.reduce((acc: { [x: string]: any; }, detail: { teachingLoadId: string | number; }) => {
     acc[detail.teachingLoadId] = (acc[detail.teachingLoadId] || 0) + 1;
     return acc;
   }, {} as Record<number, number>);
@@ -63,7 +63,7 @@ const TeachingLoadsTable = () => {
   };
 
   // Filter teaching loads based on search term
-  const filteredTeachingLoads = teachingLoads.filter(load =>
+  const filteredTeachingLoads = teachingLoads.filter((load: { teacherName: string; semName: string; academicYear: string; status: { toString: () => string; }; }) =>
     load.teacherName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     load.semName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     load.academicYear.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -190,7 +190,7 @@ const TeachingLoadsTable = () => {
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {currentItems.length > 0 ? (
-                currentItems.map((load) => (
+                currentItems.map((load:any) => (
                   <tr key={load.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
 
                     <td className="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-300 hover:underline hover:text-blue-600">

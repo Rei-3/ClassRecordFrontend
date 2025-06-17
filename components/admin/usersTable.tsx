@@ -23,11 +23,11 @@ const UserTable = () => {
   const { data: allUsers = [] } = useGetAllUsersQuery();
   
   // Filter out users with no username
-  const users = allUsers.filter(user => user.username);
+  const users = allUsers.filter((user: { username: any; }) => user.username);
 
   // Filter users based on search term
   const filteredUsers = users.filter(
-    (user) =>
+    (user: { fname: string; lname: string; email: string; username: string; }) =>
       user.fname.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.lname.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -153,7 +153,7 @@ const UserTable = () => {
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {currentItems.length > 0 ? (
-              currentItems.map((user, index) => (
+              currentItems.map((user:any, index:any) => (
                 <tr
                   key={index}
                   className="hover:bg-gray-50 dark:hover:bg-gray-700"

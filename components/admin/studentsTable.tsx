@@ -101,8 +101,8 @@ const StudentsTable = () => {
   // Filter students based on search term
   const filteredStudents = useMemo(() => {
     return students
-      .filter(student => student !== null)  // Remove null entries first
-      .filter(student => {
+      .filter((student: any) => student !== null)  // Remove null entries first
+      .filter((student: { fname: string; lname: string; email: string; studentId: string; courseName: string; }) => {
         const term = searchTerm.toLowerCase();
         return (
           student.fname?.toLowerCase().includes(term) ||
@@ -221,7 +221,7 @@ const StudentsTable = () => {
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {currentItems.length > 0 ? (
-              currentItems.map((student) => (
+              currentItems.map((student:any) => (
                 <tr key={student.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                   <td className="px-6 py-4 whitespace-nowrap text-gray-600 dark:text-gray-300">
                     {student.id}

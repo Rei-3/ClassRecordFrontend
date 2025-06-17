@@ -28,8 +28,8 @@ const TeachersTable = () => {
   const filteredTeachers = useMemo(() => {
     return teachers
       // Filter out null teachers and those with null username
-      .filter(teacher => teacher !== null && teacher.username !== null)
-      .filter(teacher => {
+      .filter((teacher: { username: any; } | any) => teacher !== null && teacher.username !== null)
+      .filter((teacher: { fname: string; lname: string; email: string; teacherId: string; }) => {
         const term = searchTerm.toLowerCase();
         return (
           teacher.fname?.toLowerCase().includes(term) ||

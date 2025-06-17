@@ -61,11 +61,10 @@ export const decryptData = (ciphertext: string): string | null => {
     const key = getParsedKey();
 
     const decrypted = CryptoJS.AES.decrypt(
-      { ciphertext: encrypted },
-      key,
-      { iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }
-    );
-
+  encrypted.toString(CryptoJS.enc.Base64), // Convert WordArray → Base64
+  key,
+  { iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }
+);
     return decrypted.toString(CryptoJS.enc.Utf8);
   } catch (error) {
     
